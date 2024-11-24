@@ -1,8 +1,8 @@
-package com.example.login.service;
+package com.example.security_login.service;
 
-import com.example.login.dto.JoinDTO;
-import com.example.login.entity.UserEntity;
-import com.example.login.repository.UserRepository;
+import com.example.security_login.dto.JoinDTO;
+import com.example.security_login.entity.UserEntity;
+import com.example.security_login.repository.UserRepository;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

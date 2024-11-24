@@ -1,7 +1,6 @@
-package com.example.login.dto;
+package com.example.security_login.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**

@@ -1,7 +1,7 @@
-package com.example.login.controller;
+package com.example.security_login.controller;
 
-import com.example.login.dto.JoinDTO;
-import com.example.login.service.JoinService;
+import com.example.security_login.dto.JoinDTO;
+import com.example.security_login.service.JoinService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
