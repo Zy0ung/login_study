@@ -2,6 +2,7 @@ package com.example.security_jwt_token.jwt;
 
 import com.example.security_jwt_token.dto.CustomUserDetails;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,24 +48,24 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        // UserDetails
-        // 유저 객체를 알아내기 위한 작업
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getUsername();
+        // 유저 정보
+        String username = authentication.getName();
 
         // role 값 알아내기
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-
         String role = auth.getAuthority();
 
-        // 토큰 생성
-        String token = jwtUtil.createJwt(username, role, 60*60*10L);
+        //토큰 생성
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        // RFC 7235 정의에 따라 아래 인증 헤더 형태를 가져야 한다.
-        response.addHeader("Authorization", "Bearer " + token);
+        //응답 설정
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
     }
 
     // 로그인 실패시 실행하는 메소드
@@ -71,5 +73,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         // 실패시 401 응답 코드 반환
         response.setStatus(401);
+    }
+
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        // 쿠키 생명 주기
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true); -> https 통신일 경우 사용
+        //cookie.setPath("/"); -> 쿠키가 적용될 범위
+        // 자바스크립트 접근 방어
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
