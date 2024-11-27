@@ -1,8 +1,10 @@
 package com.example.security_jwt_token.config;
 
+import com.example.security_jwt_token.jwt.CustomLogoutFilter;
 import com.example.security_jwt_token.jwt.JWTFilter;
 import com.example.security_jwt_token.jwt.JWTUtil;
 import com.example.security_jwt_token.jwt.LoginFilter;
+import com.example.security_jwt_token.repository.RefreshRepository;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +31,7 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,8 +52,10 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
                 // 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager()
                 // 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                                refreshRepository), UsernamePasswordAuthenticationFilter.class)
+                // logoutFilter 등록
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class)
                 // 세션 stateless 설정
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
