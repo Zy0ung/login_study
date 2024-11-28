@@ -3,7 +3,6 @@ package com.example.security_jwt_token.service;
 import com.example.security_jwt_token.entity.RefreshEntity;
 import com.example.security_jwt_token.jwt.JWTUtil;
 import com.example.security_jwt_token.repository.RefreshRepository;
-import com.example.security_jwt_token.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

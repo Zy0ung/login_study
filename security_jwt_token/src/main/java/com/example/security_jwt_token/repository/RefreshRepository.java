@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author jiyoung
  */
@@ -14,6 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface RefreshRepository extends JpaRepository<RefreshEntity, Long> {
 
     Boolean existsByRefresh(String token);
+
+    List<RefreshEntity> findByUsername(String username);
+
+    @Transactional
+    void deleteByUsername(String username);
 
     // 데이터 변경 작업이기 때문에 Transactional 어노테이션을 붙인다.
     @Transactional

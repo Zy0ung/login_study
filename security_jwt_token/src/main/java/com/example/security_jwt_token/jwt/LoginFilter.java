@@ -12,9 +12,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -66,6 +69,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", username, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
+        List<RefreshEntity> refreshList = refreshRepository.findByUsername(username);
+
+        if(!refreshList.isEmpty()){
+            refreshRepository.deleteByUsername(username);
+        }
+
         //RefreshToken 저장
         addRefreshEntity(username, refresh, 86400000L);
 
@@ -83,13 +92,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
-        //만료 일자
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+        // 현재 시간
+        LocalDateTime now = LocalDateTime.now();
+        // 만료 시간 계산
+        LocalDateTime expiration = now.plusNanos(expiredMs * 1_000_000);
+        // 원하는 포맷으로 변환 (예: yyyy-MM-dd HH:mm:ss)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedExpiration = expiration.format(formatter);
 
         RefreshEntity refreshEntity = new RefreshEntity();
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
+        refreshEntity.setExpiration(formattedExpiration);
 
         refreshRepository.save(refreshEntity);
     }
