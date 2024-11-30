@@ -1,5 +1,8 @@
 package com.example.security_jwt_token.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,5 +24,7 @@ public class RefreshEntity {
 
     private String username;
     private String refresh;
-    private String expiration;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime expiration;
 }

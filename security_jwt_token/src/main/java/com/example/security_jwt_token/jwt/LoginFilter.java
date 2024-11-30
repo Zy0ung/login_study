@@ -96,14 +96,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         LocalDateTime now = LocalDateTime.now();
         // 만료 시간 계산
         LocalDateTime expiration = now.plusNanos(expiredMs * 1_000_000);
-        // 원하는 포맷으로 변환 (예: yyyy-MM-dd HH:mm:ss)
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedExpiration = expiration.format(formatter);
+
+        expiration = expiration.withNano(0);
 
         RefreshEntity refreshEntity = new RefreshEntity();
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(formattedExpiration);
+        refreshEntity.setExpiration(expiration);
 
         refreshRepository.save(refreshEntity);
     }
