@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
@@ -96,12 +96,15 @@ public class ReissueService {
      */
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+        LocalDateTime dateTime = LocalDateTime.now().plusNanos(expiredMs * 1_000_000);
+
+        // 나노초를 0으로 설정하여 소수점 이하 제거
+        LocalDateTime expiration = dateTime.withNano(0);
 
         RefreshEntity refreshEntity = new RefreshEntity();
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
+        refreshEntity.setExpiration(expiration);
 
         refreshRepository.save(refreshEntity);
     }
