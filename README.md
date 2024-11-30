@@ -1,6 +1,7 @@
 # login_study
 
 ## security_login
+### spring Security 세션 로그인
 - Spring Data JPA
 - Spring Security
 - MySQL
