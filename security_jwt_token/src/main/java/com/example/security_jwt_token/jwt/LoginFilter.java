@@ -65,15 +65,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        //토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
-
         List<RefreshEntity> refreshList = refreshRepository.findByUsername(username);
 
         if(!refreshList.isEmpty()){
             refreshRepository.deleteByUsername(username);
         }
+
+        //토큰 생성
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+
 
         //RefreshToken 저장
         addRefreshEntity(username, refresh, 86400000L);
