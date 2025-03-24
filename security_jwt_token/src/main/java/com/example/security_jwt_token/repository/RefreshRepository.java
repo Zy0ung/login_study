@@ -2,12 +2,10 @@ package com.example.security_jwt_token.repository;
 
 
 import com.example.security_jwt_token.entity.RefreshEntity;
-
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * @author jiyoung
