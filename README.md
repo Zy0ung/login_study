@@ -16,7 +16,7 @@
 
 ## security_jwt_token
 ### Spring Security + JWT 로그인(다중 토큰)
-#### @Scheduled를 사용하여 RefreshToken 블랙리스팅
+#### @Scheduled를 사용하여 만료된 RefreshToken 제거
 - Spring Data JPA
 - Spring Security
 - MySQL
