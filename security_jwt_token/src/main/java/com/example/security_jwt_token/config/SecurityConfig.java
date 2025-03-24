@@ -5,7 +5,7 @@ import com.example.security_jwt_token.jwt.JWTFilter;
 import com.example.security_jwt_token.jwt.JWTUtil;
 import com.example.security_jwt_token.jwt.LoginFilter;
 import com.example.security_jwt_token.repository.RefreshRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author jiyoung
  */
@@ -26,7 +28,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
+    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
@@ -46,13 +48,12 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "/join", "/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                // JWTFilter를 등록
-                // JWTFilter를 LoginFilter 이전에 실행되도록 설정
+                // jwtFilter 등록
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
                 // 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager()
                 // 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                        refreshRepository), UsernamePasswordAuthenticationFilter.class)
+                                refreshRepository), UsernamePasswordAuthenticationFilter.class)
                 // logoutFilter 등록
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class)
                 // 세션 stateless 설정
@@ -68,7 +69,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // AuthenticationManager Bean 등록
+    //AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 

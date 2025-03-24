@@ -1,11 +1,14 @@
 package com.example.security_jwt_token.dto;
 
 import com.example.security_jwt_token.entity.UserEntity;
-import java.util.ArrayList;
-import java.util.Collection;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author jiyoung
