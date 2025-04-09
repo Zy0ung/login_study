@@ -1,18 +1,23 @@
 package com.example.security_jwt_token.jwt;
 
+import com.example.security_jwt_token.dto.AuthDto;
 import com.example.security_jwt_token.entity.RefreshEntity;
 import com.example.security_jwt_token.repository.RefreshRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,18 +38,29 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
             AuthenticationException {
 
-        //클라이언트 요청에서 username, password 추출
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        if (!request.getContentType().equals(MediaType.APPLICATION_JSON_VALUE)) {
+            throw new AuthenticationServiceException("지원하지 않는 Content-Type: " + request.getContentType());
+        }
 
-        System.out.println(username);
+        try {
+            // JSON 데이터 파싱
+            ObjectMapper objectMapper = new ObjectMapper();
+            AuthDto loginRequest = objectMapper.readValue(request.getInputStream(), AuthDto.class);
 
-        // 스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
-                null);
+            String username = loginRequest.getUsername();
+            String password = loginRequest.getPassword();
 
-        //token에 담은 검증을 위한 AuthenticationManager로 전달
-        return authenticationManager.authenticate(authToken);
+            System.out.println("[LoginFilter] username = " + username);
+
+            // 스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
+                    null);
+
+            //token에 담은 검증을 위한 AuthenticationManager로 전달
+            return authenticationManager.authenticate(authToken);
+        } catch (IOException e) {
+            throw new AuthenticationServiceException("요청 본문 파싱 실패", e);
+        }
     }
 
     // 로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
@@ -75,8 +91,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         addRefreshEntity(username, refresh, 86400000L);
 
         //응답 설정
-        response.setHeader("access", access);
+        // 1. Access Token → Authorization 헤더에 표준 Bearer 형식으로 설정
+        response.setHeader("Authorization", "Bearer " + access);
+        // 2. Refresh Token → HttpOnly Cookie로 설정
         response.addCookie(createCookie("refresh", refresh));
+        // 3. 상태 코드 설정 (OK)
         response.setStatus(HttpStatus.OK.value());
     }
 

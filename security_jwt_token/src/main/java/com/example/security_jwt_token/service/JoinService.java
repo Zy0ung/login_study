@@ -1,18 +1,14 @@
 package com.example.security_jwt_token.service;
 
-import com.example.security_jwt_token.dto.JoinDTO;
+import com.example.security_jwt_token.dto.AuthDto;
 import com.example.security_jwt_token.entity.UserEntity;
+import com.example.security_jwt_token.global.response.exception.ErrorCode;
+import com.example.security_jwt_token.global.response.exception.StudyException;
 import com.example.security_jwt_token.repository.UserRepository;
-
-import org.apache.catalina.connector.Response;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-
-import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
 
 /**
  * @author jiyoung
@@ -23,19 +19,18 @@ public class JoinService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final HttpServletResponse httpServletResponse;
 
     @Transactional
-    public void joinProcess(JoinDTO joinDTO) {
+    public void joinProcess(AuthDto authDto) {
 
-        String username = joinDTO.getUsername();
-        String password = joinDTO.getPassword();
+        String username = authDto.getUsername();
+        String password = authDto.getPassword();
 
         Boolean isExist = userRepository.existsByUsername(username);
 
         if (isExist) {
             System.out.println("join Failed");
-            return;
+            throw new StudyException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         UserEntity data = new UserEntity();

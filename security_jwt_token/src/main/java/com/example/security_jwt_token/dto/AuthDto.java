@@ -1,6 +1,7 @@
 package com.example.security_jwt_token.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -8,7 +9,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class JoinDTO {
+@NoArgsConstructor
+public class AuthDto {
     private String username;
     private String password;
 }
