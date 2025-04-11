@@ -33,11 +33,12 @@ public class JoinService {
             throw new StudyException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
-        UserEntity data = new UserEntity();
+        UserEntity user = UserEntity.builder()
+                .username(username)
+                .password(bCryptPasswordEncoder.encode(password))
+                .role("ROLE_ADMIN")
+                .build();
 
-        data.setUsername(username);
-        data.setPassword(bCryptPasswordEncoder.encode(password));
-        data.setRole("ROLE_ADMIN");
-        userRepository.save(data);
+        userRepository.save(user);
     }
 }
